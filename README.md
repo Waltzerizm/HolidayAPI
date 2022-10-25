@@ -15,7 +15,11 @@ If you wish to use your own database, make sure to change the ConnectionString i
 ## Comments due to the application
 
 Theres quite a few warnings due to possible null references, which hopefully I will be able to patch up later on in the week. (Unfortunatly, after the deadline :-( )
+
 I did not have time to sterialize User input and test it out really well, but hopefully it should work well!
+
 The database table structures and namings are a mess, thats something that would be needed to fix asap. 
+
 I couldn't host the application on Azure, since I was no longer eligible for the free trail, that's why I chose Google Cloud.
+
 If you have any questions or regards, feel free to contact me :-) Gmail- rokas.lekecinskas@gmail.com or Facebook/LinkedIn - Rokas Lekečinskas.
