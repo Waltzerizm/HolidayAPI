@@ -108,7 +108,7 @@ namespace HolidayAPI.Controllers
             return table;
         }
 
-        public void PostAllCountries(List<Country> countries)
+        public async void PostAllCountriesAsync(List<Country> countries)
         {
             string query = "INSERT INTO dbo.countries(fullName, countryCode, regions) VALUES(@fullName, @countryCode, @regions)";
 
@@ -133,7 +133,7 @@ namespace HolidayAPI.Controllers
                         foreach (string region in country.Regions)
                         {
                             command.Parameters["@regions"].Value = region ?? Convert.DBNull;
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
                         }
                     }
                     connection.Close();
@@ -141,7 +141,7 @@ namespace HolidayAPI.Controllers
             }
         }
 
-        public void PostHolidayByYearAndCountry(List<MonthlyHolidays> holidays, int year, string country, string? region = null)
+        public async void PostHolidayByYearAndCountryAsync(List<MonthlyHolidays> holidays, int year, string country, string? region = null)
         {
             string query = "INSERT INTO dbo.holidays(country, region, year, month, holidayName) VALUES(@country, @region, @year, @month, @holidayName)";
 
@@ -167,7 +167,7 @@ namespace HolidayAPI.Controllers
                         foreach (string holiday in month.HolidayName)
                         {
                             command.Parameters["@holidayName"].Value = holiday ?? Convert.DBNull;
-                            command.ExecuteNonQuery();
+                            await command.ExecuteNonQueryAsync();
                         }
                     }
                     connection.Close();
@@ -175,7 +175,7 @@ namespace HolidayAPI.Controllers
             }
         }
 
-        public void PostDayStatus(DayState state, DateTime date, string country, string? region = null)
+        public async void PostDayStatusAsync(DayState state, DateTime date, string country, string? region = null)
         {
             string query = "INSERT INTO dbo.day_status(country, region, status_date, day_status) VALUES(@country, @region, @statusDate, @dayStatus)";
 
@@ -193,13 +193,13 @@ namespace HolidayAPI.Controllers
                     command.Parameters.AddWithValue("@statusDate", date.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@dayStatus", state.DayStatus);
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                     connection.Close();
                 }
             }
         }
 
-        public void PostMaxFreedays(LongestFreeday longestFreeday, int year, string country, string? region = null)
+        public async void PostMaxFreedaysAsync(LongestFreeday longestFreeday, int year, string country, string? region = null)
         {
             string query = "INSERT INTO dbo.longest_freeday(country, region, year, longest_count) VALUES(@country, @region, @year, @longest_count)";
 
@@ -217,7 +217,7 @@ namespace HolidayAPI.Controllers
                     command.Parameters.AddWithValue("@year", year);
                     command.Parameters.AddWithValue("@longest_count", longestFreeday.LongestFreedayCount);
 
-                    command.ExecuteNonQuery();
+                    await command.ExecuteNonQueryAsync();
                     connection.Close();
                 }
             }
