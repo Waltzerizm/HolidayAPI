@@ -31,7 +31,7 @@ namespace HolidayAPI.Controllers
 
             List<Country> countries = enricoApiService.GetSupportedCountries().Result;
 
-            databaseController.PostAllCountries(countries); // TODO: implement
+            databaseController.PostAllCountriesAsync(countries);
 
             return JsonConvert.SerializeObject(countries);
         }
@@ -50,8 +50,6 @@ namespace HolidayAPI.Controllers
 
             List<Holiday> holidays = enricoApiService.GetHolidaysByYearAndCountry(year, country, region).Result;
 
-            // could async find the longest freeday here and put to DB
-
             for (int i = 0; i < 12; i++)
             {
                 monthlyHolidays[i].Month = i + 1;
@@ -65,7 +63,7 @@ namespace HolidayAPI.Controllers
                 }
             }
 
-            databaseController.PostHolidayByYearAndCountry(monthlyHolidays, year, country, region); // TODO: implement
+            databaseController.PostHolidayByYearAndCountryAsync(monthlyHolidays, year, country, region);
 
             return JsonConvert.SerializeObject(monthlyHolidays);
         }
@@ -89,7 +87,7 @@ namespace HolidayAPI.Controllers
             {
                 status.DayStatus = "workday";
 
-                databaseController.PostDayStatus(status, date, country, region);
+                databaseController.PostDayStatusAsync(status, date, country, region);
 
                 return JsonConvert.SerializeObject(status);
             }
@@ -98,14 +96,14 @@ namespace HolidayAPI.Controllers
             {
                 status.DayStatus = "holiday";
 
-                databaseController.PostDayStatus(status, date, country, region);
+                databaseController.PostDayStatusAsync(status, date, country, region);
 
                 return JsonConvert.SerializeObject(status);
             }
 
             status.DayStatus = "free day";
 
-            databaseController.PostDayStatus(status, date, country, region);
+            databaseController.PostDayStatusAsync(status, date, country, region);
 
             return JsonConvert.SerializeObject(status);
         }
@@ -164,7 +162,7 @@ namespace HolidayAPI.Controllers
 
             longestFreeday.LongestFreedayCount = longestCount;
 
-            databaseController.PostMaxFreedays(longestFreeday, year, country, region); // TODO: implement
+            databaseController.PostMaxFreedaysAsync(longestFreeday, year, country, region);
 
             return JsonConvert.SerializeObject(longestFreeday);
         }
