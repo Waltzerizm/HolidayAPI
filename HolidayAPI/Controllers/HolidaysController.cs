@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HolidayAPI.Models;
 using HolidayAPI.Services;
+using System.Data;
+using System.Data.SqlClient;
+using Newtonsoft.Json;
 
 namespace HolidayAPI.Controllers
 {
@@ -8,30 +11,44 @@ namespace HolidayAPI.Controllers
     [Route("api/[controller]")]
     public class HolidaysController : ControllerBase
     {
-        private readonly ILogger<HolidaysController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public HolidaysController(ILogger<HolidaysController> logger)
+        public HolidaysController(IConfiguration configuration)
         {
-            _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpGet("GetAllCountries")]
-        public IEnumerable<Country> GetAllCountries()
+        public string GetAllCountries()
         {
+            var databaseController = new DatabaseController(_configuration);
+            string databaseResponse = databaseController.GetAllCountries();
+
+            if(databaseResponse != "[]")
+                return databaseResponse;
+
             var enricoApiService = new EnricoApiService();
 
             List<Country> countries = enricoApiService.GetSupportedCountries().Result;
 
-            return countries;
+            databaseController.PostAllCountries(countries); // TODO: implement
+
+            return JsonConvert.SerializeObject(countries);
         }
 
         [HttpGet("GetHolidaysByYearAndCountry/{year}/{country}")]
-        public IEnumerable<MonthlyHolidays> GetHolidayByYearAndCountry(int year, string country) // TODO: handle "lt" or "lithuania"
+        public string GetHolidayByYearAndCountry(int year, string country, string? region = null)
         {
-            var monthlyHolidays = new MonthlyHolidays[12].Select(x => new MonthlyHolidays { Month = 0, HolidayName = new List<string>() }).ToArray();
+            var databaseController = new DatabaseController(_configuration);
+            string databaseResponse = databaseController.GetHolidayByYearAndCountry(year, country, region);
+
+            if (databaseResponse != "[]")
+                return databaseResponse;
+
+            var monthlyHolidays = new MonthlyHolidays[12].Select(x => new MonthlyHolidays { Month = 0, HolidayName = new List<string>() }).ToList();
             var enricoApiService = new EnricoApiService();
 
-            List<Holiday> holidays = enricoApiService.GetHolidaysByYearAndCountry(year, country).Result;
+            List<Holiday> holidays = enricoApiService.GetHolidaysByYearAndCountry(year, country, region).Result;
 
             // could async find the longest freeday here and put to DB
 
@@ -48,42 +65,65 @@ namespace HolidayAPI.Controllers
                 }
             }
 
-            return monthlyHolidays;
+            databaseController.PostHolidayByYearAndCountry(monthlyHolidays, year, country, region); // TODO: implement
+
+            return JsonConvert.SerializeObject(monthlyHolidays);
         }
 
         [HttpGet("GetDayStatus/{date}/{country}")]
-        public DayState GetDayStatus(DateTime date, string country)
+        public string GetDayStatus(DateTime date, string country, string? region = null)
         {
+            var databaseController = new DatabaseController(_configuration);
+            string databaseResponse = databaseController.GetDayStatus(date, country, region);
+
+            if (databaseResponse != "[]")
+                return databaseResponse;
+
             var enricoApiService = new EnricoApiService();
             var status = new DayState();
 
-            bool isWorkday = enricoApiService.GetDayWorkdayStatus(date, country).Result.IsWorkday;
-            bool isPublicHoliday = enricoApiService.GetDayHolidayStatus(date, country).Result.IsPublicHoliday;
+            bool isWorkday = enricoApiService.GetDayWorkdayStatus(date, country, region).Result.IsWorkday;
+            bool isPublicHoliday = enricoApiService.GetDayHolidayStatus(date, country, region).Result.IsPublicHoliday;
 
             if (isWorkday)
             {
                 status.DayStatus = "workday";
-                return status;
+
+                databaseController.PostDayStatus(status, date, country, region);
+
+                return JsonConvert.SerializeObject(status);
             }
 
             if (isPublicHoliday)
             {
                 status.DayStatus = "holiday";
-                return status;
+
+                databaseController.PostDayStatus(status, date, country, region);
+
+                return JsonConvert.SerializeObject(status);
             }
 
             status.DayStatus = "free day";
-            return status;
+
+            databaseController.PostDayStatus(status, date, country, region);
+
+            return JsonConvert.SerializeObject(status);
         }
-        
+
         [HttpGet("GetMaxFreedays{year}/{country}")]
-        public LongestFreeday GetMaxFreedays(int year, string country)
+        public string GetMaxFreedays(int year, string country, string? region = null)
         {
+            var databaseController = new DatabaseController(_configuration);
+            string databaseResponse = databaseController.GetMaxFreedays(year, country, region);
+
+            if (databaseResponse != "[]")
+                return databaseResponse;
+
             var enricoApiService = new EnricoApiService();
-            var yearlyData = new List<bool>();
+            var yearlyData = new List<bool>(); // list of bools representing if the certain day of the year is a free day. yearlyData[n] = true - the n day is a free day and vice versa.
             var longestFreeday = new LongestFreeday();
 
-            List<Holiday> yearOfHolidays = enricoApiService.GetHolidaysByYearAndCountry(year, country).Result;
+            List<Holiday> yearOfHolidays = enricoApiService.GetHolidaysByYearAndCountry(year, country, region).Result;
 
             for (int i = 0; i < 12; i++) // Initializes data and marks weekends as a free day
             {
@@ -109,7 +149,7 @@ namespace HolidayAPI.Controllers
             }
 
             int count = 1;
-            int longestCount = 1;
+            int longestCount = 2; // 2 since theres always saturday and sunday
 
             for (int i = 1; i < yearlyData.Count; i++) // Finds the longest free day
             {
@@ -124,7 +164,9 @@ namespace HolidayAPI.Controllers
 
             longestFreeday.LongestFreedayCount = longestCount;
 
-            return longestFreeday;
+            databaseController.PostMaxFreedays(longestFreeday, year, country, region); // TODO: implement
+
+            return JsonConvert.SerializeObject(longestFreeday);
         }
     }
 }
