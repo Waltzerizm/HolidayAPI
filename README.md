@@ -22,4 +22,6 @@ The database table structures and namings are a mess, thats something that would
 
 I couldn't host the application on Azure, since I was no longer eligible for the free trail, that's why I chose Google Cloud.
 
+GetDayStatus and GetMaxFreeday API calls return [{variable: value}] or {variable:value} depending if it's queried from the API or database (whoops).
+
 If you have any questions or regards, feel free to contact me :-) Gmail- rokas.lekecinskas@gmail.com or Facebook/LinkedIn - Rokas Lekečinskas.
