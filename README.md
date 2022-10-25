@@ -2,7 +2,7 @@
 
 [Web Api](https://holidaydb.ew.r.appspot.com/swagger/index.html)
 
-The application was developed on Windows OS using .NET6.0 framework.
+The application was developed on Windows OS using .NET6.0 ASP.NET Core Web API.
 
 The Web Api and database is deployed on Google Cloud. 
 
