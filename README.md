@@ -1,6 +1,6 @@
 # HolidayAPI
 
-[Web Api](https://holidaydb.ew.r.appspot.com/swagger/index.html)
+[Web Api]([https://holidaydb.ew.r.appspot.com/swagger/index.html](https://holidaydb.ew.r.appspot.com/swagger/index.html#/Holidays)
 
 The application was developed on Windows OS using .NET6.0 ASP.NET Core Web API.
 
