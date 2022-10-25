@@ -25,9 +25,12 @@ namespace HolidayAPI.Services
             return data;
         }
 
-        public async Task<List<Holiday>> GetHolidaysByYearAndCountry(int year, string country)
+        public async Task<List<Holiday>> GetHolidaysByYearAndCountry(int? year, string country, string? region = null)
         {
-            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=getHolidaysForYear&year={0}&country={1}&holidayType=public_holiday", year, country);
+            if (region != null)
+                region = string.Format("&region={0}", region);
+
+            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=getHolidaysForYear&year={0}&country={1}&holidayType=public_holiday{2}", year, country, region);
 
             string apiResponse = await _client.GetStringAsync(url);
 
@@ -36,9 +39,12 @@ namespace HolidayAPI.Services
             return data;
         }
 
-        public async Task<PublicHolidayState> GetDayHolidayStatus(DateTime date, string country)
+        public async Task<PublicHolidayState> GetDayHolidayStatus(DateTime date, string country, string? region = null)
         {
-            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=isPublicHoliday&date={0}&country={1}", date.ToString("dd-MM-yyyy"), country);
+            if (region != null)
+                region = string.Format("&region={0}", region);
+
+            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=isPublicHoliday&date={0}&country={1}{2}", date.ToString("dd-MM-yyyy"), country, region);
 
             string holidayApiResponse = await _client.GetStringAsync(url);
 
@@ -47,9 +53,12 @@ namespace HolidayAPI.Services
             return holidayData;
         }
 
-        public async Task<WorkdayState> GetDayWorkdayStatus(DateTime date, string country)
+        public async Task<WorkdayState> GetDayWorkdayStatus(DateTime date, string country, string? region = null)
         {
-            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=isWorkDay&date={0}&country={1}", date.ToString("dd-MM-yyyy"), country);
+            if (region != null)
+                region = string.Format("&region={0}", region);
+
+            string url = string.Format("https://kayaposoft.com/enrico/json/v2.0/?action=isWorkDay&date={0}&country={1}{2}", date.ToString("dd-MM-yyyy"), country, region);
 
             string workdayApiResponse = await _client.GetStringAsync(url);
 
